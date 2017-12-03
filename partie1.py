@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
+sys.setrecursionlimit(10000) # 10000 is an example, try with different values
 
 '''
 Calcule le produit de deux nombres x et y necessitant plus de 32 bits
@@ -22,17 +24,14 @@ def multiply(x, y, p):
 '''
 Calcule x^k mod p;
 Le calcul doit être en O(log K)
-
-https://fr.wikipedia.org/wiki/Exponentiation_modulaire#La_m%C3%A9thode_la_plus_efficace
 '''
 def puissance(x, k, p):
-    result = 1;
-    while k > 0:
-        if (k & 1) > 0  :
-            result = (result * x) % p
-        k  >>= 1
-        x = (x*x)%p
-
+    result = 1
+    while k:
+        if k & 1 :
+            result = multiply(result, x , p)
+        k >>= 1
+        x = multiply(x, x , p)
     return result
 
-print(puissance(3, 2, 2))
+print(puissance(125, 687, 15))
