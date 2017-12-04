@@ -18,12 +18,17 @@ def multiply(x, y, p):
         x = (2*x)%p
     return result
 
+def puissance(x, k, p, method="iteratif"):
+    if method == "iteratif":
+        return puissance_iteratif(x,k,p)
+    elif method == "recursif":
+        return puissance_recursif(x,k,p)
 
 '''
 Calcule x^k mod p;
 Le calcul doit être en O(log K)
 '''
-def puissance(x, k, p):
+def puissance_iteratif(x, k, p):
     result = 1
     while k:
         if k & 1 :
@@ -46,4 +51,4 @@ def puissance_recursion(x, k, p):
     else :
         return multiply(result, puissance_recursion(result, k-1, p), p)
 
-print(puissance_recursion(125, 687, 15))
+print(puissance(125, 687, 15))
