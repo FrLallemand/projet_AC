@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
+from random import randint
+
 '''
 Calcule le produit de deux nombres x et y necessitant plus de 32 bits
 et calcule le modulo par p
@@ -51,4 +53,18 @@ def puissance_recursion(x, k, p):
     else :
         return multiply(result, puissance_recursion(result, k-1, p), p)
 
-print(puissance(125, 687, 15))
+
+def pseudoprime(p):
+    if (puissance(2, p-1, p) == 1) :
+        return True
+    return False
+
+def nextprime():
+    result = randint(2, pow(2, 31)-1)
+    is_prime = pseudoprime(result)
+    while not is_prime :
+        result = randint(2, pow(2, 31)-1)
+        is_prime = pseudoprime(result)
+    return result
+
+print(nextprime())
