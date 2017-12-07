@@ -67,4 +67,45 @@ def nextprime():
         is_prime = pseudoprime(result)
     return result
 
-print(nextprime())
+
+'''
+Calcule le fingerprint de fn
+'''
+def fingerprint(p, fn):
+    f = open(fn, "rb")
+    data = f.read()
+    f.close()
+    data_length = len(data)
+    add_result = 0
+    for i in range(0, data_length):
+        mult_result = modular_multiplication(data[i],
+                                             puissance_v2(256,
+                                                          data_length-i-1,
+                                                          p),
+                                             p)
+        add_result = modular_addition(add_result,
+                                      mult_result,
+                                      p)
+    return add_result
+
+
+
+'''
+calcul sans multiply
+'''
+def puissance_v2(x, k, p):
+    result = 1
+    while k:
+        if k & 1 :
+            result = (result*x)%p
+        k >>= 1
+        x = (x*x)%p
+    return result
+
+def modular_addition(a, b, c):
+    return ((a%c) + (b%c)) % c
+
+def modular_multiplication(a, b, c):
+    return ((a%c) * (b%c)) % c
+
+print(fingerprint(5407, "tests/test1"))
