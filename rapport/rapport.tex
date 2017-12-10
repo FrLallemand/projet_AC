@@ -15,4 +15,17 @@
 \textbf{Question 6 : }
 En executant 100 fois notre programme sur les fichiers test3.xpm et test4, nous constatons que pour certains nombres premiers, ces deux fichiers ont la même signature. Par exemple pour p=7470107, la signature de test4 et test3.xpm est : 1100592.
 
+
+\textbf{Question 7 : }
+Le fichier test2 peut avoir été fabriqué en utilisant le produit de tout les nombres premiers allant de 3 jusq'à $2^{(23)}-1$.
+Si le fichier test2 represente ce produit, tout nombre premier p dans cet intervalle sera un diviseur possible de ce nombre, le résultat du modulo de la représentation en base 256 du produit sera donc 0.
+
+\textbf{Question 8 : }
+Le fichier test4 pourrait avoir été obtenu en utilisant une technique similaire à celle utilisée pour le fichier 2.
+Au lieu d'utiliser tout les nombres premiers de 3 à $2^{(23)}-1$, le nombre dans notre fichier ne serait le produit que de quelques nombres premiers dans cet intervalle. Cela expliquerait pourquoi les fichiers test3.xpm et test4 ont parfois la même signature pour le même nombre premier.
+
+
+\textbf{Question 9 : }
+Le fichier fool.xpm est crée en additionnant les fichiers test2 et test5.xpm, plus précisement en additionnant les octets de test2 à ceux correspondants de test5.xpm (c0 de test2 + c0 de test5.xpm, etc) et en
+ajoutant une retenue lorsque la somme dépasse 256.
 \end{document}
