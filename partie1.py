@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
 
 from random import randint
+import sys
 
 '''
 Calcule le produit de deux nombres x et y necessitant plus de 32 bits
@@ -60,10 +62,10 @@ def pseudoprime(p):
     return False
 
 def nextprime():
-    result = randint(2, pow(2, 31)-1)
+    result = randint(2, pow(2, 23)-1)
     is_prime = pseudoprime(result)
     while not is_prime :
-        result = randint(2, pow(2, 31)-1)
+        result = randint(2, pow(2, 23)-1)
         is_prime = pseudoprime(result)
     return result
 
@@ -108,4 +110,22 @@ def modular_addition(a, b, c):
 def modular_multiplication(a, b, c):
     return ((a%c) * (b%c)) % c
 
-print(fingerprint(5407, "tests/test1"))
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Calcule le fingerprint d'un fichier donné.")
+    parser.add_argument('-p', '--prime', metavar='P', type=int, nargs='?',
+                        help='Nombre premier', required=False)
+    parser.add_argument('-f', '--filename', metavar='File', type=str, nargs='?',
+                        help="Fichier d'entrée")
+    args = parser.parse_args()
+    if not args.prime :
+        args.prime = nextprime()
+
+    for i in range(0, 100):
+        args.prime = nextprime()
+        f4 = fingerprint(args.prime, "tests/test4")
+        f3 = fingerprint(args.prime, args.filename)
+
+        print("\n")
+        print("Prime     : " + str(args.prime))
+        print("Fichier 4 : " + str(f4))
+        print("Fichier 3 : " + str(f3))
