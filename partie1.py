@@ -110,6 +110,77 @@ def modular_addition(a, b, c):
 def modular_multiplication(a, b, c):
     return ((a%c) * (b%c)) % c
 
+'''
+Calcule le fingerprint d'un bloc.
+'''
+def fingerprint_blocs(bloc_length, data , p):
+    add_result = 0
+    (begining, end) = bloc_length
+    for i in range(begining, end):
+        mult_result = modular_multiplication(data[i],
+                                             puissance_v2(256,
+                                                          data_length-i-1,
+                                                          p),
+                                             p)
+        add_result = modular_addition(add_result,
+                                      mult_result,
+                                      p)
+    return add_result
+
+
+'''
+Vérifie si le fichier parent_file contient le fichier child_file
+'''
+def is_in_file(parent_file, child_file):
+    result = False
+    p = nextprime()
+    child_fingerprint = fingerprint(p, child_file)
+
+    f = open(child_file, "rb")
+    child_data = f.read()
+    f.close()
+    child_data_length = len(child_data)
+
+    f = open(child_file, "rb")
+    parent_data = f.read()
+    f.close()
+    parent_data_length = len(child_data)
+
+    #Calcul du nombre de blocs dans le parent : on retire la taille d'un bloc enfant et ajoute le premier bloc
+    blocs_number = parent_data_length - child_data_length + 1
+
+    #Calcul du fingerprint pour le premier bloc.
+
+    begining = 0
+    end = begining + child_data_length
+    fingerprint = fingerprint_blocs((begining, end), parent_data, p)
+    for i in range(1, blocs_number):
+        """
+        ((fingerprint - parent_data[begining]*256^(child_data_length-1))*256 + parent_data[end+1]) mod p
+        end sera incrémenté en début de tour
+        Décomposition du calcul en une série de modulos
+        """
+        if fingerprint == child_fingerprint:
+            result = True
+            break
+
+        end++
+
+        m1 = modular_multiplication(parent_data[begining],
+                                     puissance_v2(256,
+                                                  child_data_length-1,
+                                                  p),
+                                     p)
+
+        m2 = modular_addition(fingerprint, (-m1), p)
+        m3 = modular_multiplication(m2, 256, p)
+        fingerprint = modular_addition(m3, parent_data[end], p)
+        begining++
+
+    return result
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Calcule le fingerprint d'un fichier donné.")
     parser.add_argument('-p', '--prime', metavar='P', type=int, nargs='?',
@@ -120,12 +191,9 @@ if __name__ == '__main__':
     if not args.prime :
         args.prime = nextprime()
 
-    for i in range(0, 100):
-        args.prime = nextprime()
-        f4 = fingerprint(args.prime, "tests/test4")
-        f3 = fingerprint(args.prime, args.filename)
+    args.prime = nextprime()
+    f2 = fingerprint(args.prime, args.filename)
 
-        print("\n")
-        print("Prime     : " + str(args.prime))
-        print("Fichier 4 : " + str(f4))
-        print("Fichier 3 : " + str(f3))
+    print("\n")
+    print("Prime     : " + str(args.prime))
+    print("Fichier 2 : " + str(f2))
