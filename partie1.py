@@ -80,6 +80,7 @@ def fingerprint(p, fn):
     data_length = len(data)
     add_result = 0
     for i in range(0, data_length):
+        #print(data[i])
         mult_result = modular_multiplication(data[i],
                                              puissance_v2(256,
                                                           data_length-i-1,
@@ -115,11 +116,12 @@ Calcule le fingerprint d'un bloc.
 '''
 def fingerprint_blocs(bloc_length, data , p):
     add_result = 0
+    data_length = len(data)
     (begining, end) = bloc_length
     for i in range(begining, end):
         mult_result = modular_multiplication(data[i],
                                              puissance_v2(256,
-                                                          data_length-i-1,
+                                                          end-i-1,
                                                           p),
                                              p)
         add_result = modular_addition(add_result,
@@ -140,31 +142,43 @@ def is_in_file(parent_file, child_file):
     child_data = f.read()
     f.close()
     child_data_length = len(child_data)
+    print("\nchild")
 
-    f = open(child_file, "rb")
+    f = open(parent_file, "rb")
     parent_data = f.read()
     f.close()
-    parent_data_length = len(child_data)
+    print("\nparent")
+    parent_data_length = len(parent_data)
 
     #Calcul du nombre de blocs dans le parent : on retire la taille d'un bloc enfant et ajoute le premier bloc
     blocs_number = parent_data_length - child_data_length + 1
-
+    print("\nNb blocs :")
+    print(blocs_number)
     #Calcul du fingerprint pour le premier bloc.
 
     begining = 0
     end = begining + child_data_length
-    fingerprint = fingerprint_blocs((begining, end), parent_data, p)
+    fingerprint_current = fingerprint_blocs((begining, end), parent_data, p)
+    print("\n child fingerprint :")
+    print(child_fingerprint)
+    """
+    for i in range(0, blocs_number):
+        end+=1
+        begining+=1
+    """
+    print("\nfingerprint blocs :")
     for i in range(1, blocs_number):
+    #    print(str(fingerprint_current) + " " + str(fingerprint_blocs((begining, end), parent_data, p)))
+
         """
         ((fingerprint - parent_data[begining]*256^(child_data_length-1))*256 + parent_data[end+1]) mod p
         end sera incrémenté en début de tour
         Décomposition du calcul en une série de modulos
         """
-        if fingerprint == child_fingerprint:
+        if fingerprint_current == child_fingerprint:
             result = True
             break
 
-        end++
 
         m1 = modular_multiplication(parent_data[begining],
                                      puissance_v2(256,
@@ -172,12 +186,38 @@ def is_in_file(parent_file, child_file):
                                                   p),
                                      p)
 
-        m2 = modular_addition(fingerprint, (-m1), p)
+        m2 = modular_addition(fingerprint_current, (-m1), p)
         m3 = modular_multiplication(m2, 256, p)
-        fingerprint = modular_addition(m3, parent_data[end], p)
-        begining++
+        fingerprint_current = modular_addition(m3, parent_data[end], p)
+        end+=1
+        begining+=1
 
     return result
+
+'''
+Crée un fichier contenant l'inclusion de child dans le fichier parent
+'''
+def put_in_file(parent_file, child_file, name):
+    f = open(child_file, "rb")
+    child_data = f.read()
+    f.close()
+    child_data_length = len(child_data)
+
+    f = open(parent_file, "rb")
+    parent_data = f.read()
+    f.close()
+    parent_data_length = len(parent_data)
+
+    fusion_file = open(name, "wb+")
+    point = randint(0, parent_data_length-1)
+    fusion_file.write(parent_data[0:point])
+    fusion_file.write(child_data[0:child_data_length])
+    fusion_file.write(parent_data[point:parent_data_length])
+
+    fusion_file.close()
+
+
+
 
 
 
@@ -187,13 +227,31 @@ if __name__ == '__main__':
                         help='Nombre premier', required=False)
     parser.add_argument('-f', '--filename', metavar='File', type=str, nargs='?',
                         help="Fichier d'entrée")
+
+    parser.add_argument('-u', '--union', metavar='Union', type=str,nargs='+')
+    parser.add_argument('-i', '--in_file', type=str, nargs='+')
+
     args = parser.parse_args()
     if not args.prime :
         args.prime = nextprime()
 
-    args.prime = nextprime()
-    f2 = fingerprint(args.prime, args.filename)
+    if args.union and len(args.union) == 3:
+        put_in_file(args.union[0], args.union[1], args.union[2])
 
-    print("\n")
-    print("Prime     : " + str(args.prime))
-    print("Fichier 2 : " + str(f2))
+    if args.in_file and len(args.in_file) == 2:
+        print(is_in_file(args.in_file[0], args.in_file[1]))
+
+    if args.filename:
+        print(fingerprint(args.prime, args.filename))
+
+"""
+    data1 = [86, 118, 228, 85, 126]
+    fusion_file = open("file1", "wb+")
+    fusion_file.write(bytearray(data1))
+    fusion_file.close()
+
+    data2 = [200, 132, 252]
+    fusion_file = open("file2", "wb+")
+    fusion_file.write(bytearray(data2))
+    fusion_file.close()
+"""
