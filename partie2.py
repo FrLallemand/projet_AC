@@ -17,8 +17,6 @@ def fractionalPacking(objets, taille_boite):
     return  math.ceil(total / taille_boite)
 
 def firstFitPacking(objets, taille_boite):
-    # Mise en ordre de la liste, dans l'ordre décroissant
-    #objets.sort(reverse=True)
     remplissage = [(0, [])]
     objets_utilises = []
     boite_actuelle = 0
@@ -40,14 +38,11 @@ def firstFitPacking(objets, taille_boite):
     return remplissage
 
 def bestFitPacking(objets, taille_boite):
-    # Mise en ordre de la liste, dans l'ordre décroissant
-    #objets.sort(reverse=True)
     remplissage = [(0, [])]
     objets_utilises = []
     boite_actuelle = 0
     #print("Boite : " + str(taille_boite))
     for obj in objets :
-        fitted = False
         bestFit = -1
         best_capacite = 0
         # On regarde si on trouve une boite
@@ -65,6 +60,16 @@ def bestFitPacking(objets, taille_boite):
             remplissage[bestFit] = (remplissage[bestFit][0] + obj, remplissage[bestFit][1])
 
     return remplissage
+
+def firstFitDecreasingPacking(objets, taille_boite):
+    # Mise en ordre de la liste, dans l'ordre décroissant
+    firstFitPacking(objets.sort(reverse=True), taille_boite)
+
+def bestFitDecreasingPacking(objets, taille_boite):
+    # Mise en ordre de la liste, dans l'ordre décroissant
+    objets.sort(reverse=True)
+    bestFitPacking(objets.sort(reverse=True), taille_boite)
+
 
 if __name__ == '__main__':
     objets = [4, 6, 9, 10, 2, 10, 3, 16]
