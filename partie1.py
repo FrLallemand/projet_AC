@@ -216,24 +216,73 @@ def put_in_file(parent_file, child_file, name):
 
     fusion_file.close()
 
+def to_fool_xpm():
+    f = open("tests/test2", "rb")
+    test2_data = f.read()
+    f.close()
+    test2_data_length = len(test2_data)
+
+    f = open("tests/test5.xpm", "rb")
+    test5_data = f.read()
+    f.close()
+    test5_data_length = len(test5_data)
+    fusion_data = [0, 0]
+    #print(test2_data_length)
+    #print(test5_data_length)
+    for i in range(0, 15):#test5_data_length):#max(test5_data_length, test2_data_length)):
+        data_sum = test5_data[i] + test2_data[i]
+        fusion_data.append(0)
+        total = fusion_data[i+1] + data_sum
+        print(str(test2_data[i]) + " + " + str(test5_data[i]) + " + " + str(fusion_data[i+1]))
+        reste = total % 255
+        fusion_data[i+1] = reste
+        fusion_data[i] += (total // 255)
+        print("     reste: " + str(fusion_data[i]) + "  retenue: " + str(fusion_data[i+1]))
 
 
+    if fusion_data[0] == 0:
+        fusion_data = fusion_data[1:len(fusion_data)-1]
+    print(fusion_data)
+    fusion_file = open("fool.xpm", "wb+")
+    fusion_file.write(bytes(fusion_data))
 
+
+    p =  5908169#nextprime()
+    #AmodP = fingerprint_blocs((0, test5_data_length), test5_data, p)
+    #BmodP = fingerprint_blocs((0, test2_data_length), test2_data, p)
+    #AmodP = 5811589
+    #BmodP = 0
+    #print(fingerprint_blocs((0, len(fusion_data)), fusion_data, p))
+    print(fingerprint(p, 'fool.xpm'))
+    print(fingerprint(p, 'tests/test5.xpm'))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Calcule le fingerprint d'un fichier donné.")
     parser.add_argument('-p', '--prime', metavar='P', type=int, nargs='?',
                         help='Nombre premier', required=False)
-    parser.add_argument('-f', '--filename', metavar='File', type=str, nargs='?',
-                        help="Fichier d'entrée")
+    parser.add_argument('-f', '--filename', metavar='File', type=str, nargs='+',
+                        help="Fichiers d'entrée")
 
-    parser.add_argument('-u', '--union', metavar='Union', type=str,nargs='+')
-    parser.add_argument('-i', '--in_file', type=str, nargs='+')
+    parser.add_argument('-u', '--union', metavar='Union', type=str,nargs='+',
+                        help='Prend 3 fichiers en entrée, place le second dans le premier et met le résultat dans le troisième.')
+    parser.add_argument('-i', '--in_file', type=str, nargs='+',
+                        help='Prend 2 fichiers en entrée, vérifie si le second se trouve dans le premier.')
+
+    parser.add_argument('--make_fool', action='store_true', required=False,
+                        help='Crée fool.xpm à partir de test2 et test5.xpm.')
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(1)
 
     args = parser.parse_args()
+    if args.make_fool :
+        to_fool_xpm()
+
     if not args.prime :
         args.prime = nextprime()
+        #print(nextprime())
 
     if args.union and len(args.union) == 3:
         put_in_file(args.union[0], args.union[1], args.union[2])
@@ -241,17 +290,6 @@ if __name__ == '__main__':
     if args.in_file and len(args.in_file) == 2:
         print(is_in_file(args.in_file[0], args.in_file[1]))
 
-    if args.filename:
-        print(fingerprint(args.prime, args.filename))
-
-"""
-    data1 = [86, 118, 228, 85, 126]
-    fusion_file = open("file1", "wb+")
-    fusion_file.write(bytearray(data1))
-    fusion_file.close()
-
-    data2 = [200, 132, 252]
-    fusion_file = open("file2", "wb+")
-    fusion_file.write(bytearray(data2))
-    fusion_file.close()
-"""
+    if args.filename and len(args.filename) >= 1:
+        for f in args.filename:
+            print(fingerprint(args.prime, f))
